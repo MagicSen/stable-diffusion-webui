@@ -14,6 +14,7 @@ import modules.memmon
 import modules.styles
 import modules.devices as devices
 from modules import localization, extensions, script_loading, errors, ui_components, shared_items
+# 常规脚本路径
 from modules.paths import models_path, script_path, data_path
 
 
@@ -24,6 +25,7 @@ sd_default_config = os.path.join(sd_configs_path, "v1-inference.yaml")
 sd_model_file = os.path.join(script_path, 'model.ckpt')
 default_sd_model_file = sd_model_file
 
+# 采用 argparse包来做命令行解释器
 parser = argparse.ArgumentParser()
 parser.add_argument("--data-dir", type=str, default=os.path.dirname(os.path.dirname(os.path.realpath(__file__))), help="base path where all user data is stored",)
 parser.add_argument("--config", type=str, default=sd_default_config, help="path to config which constructs model",)
@@ -111,6 +113,7 @@ parser.add_argument("--no-hashing", action='store_true', help="disable sha256 ha
 parser.add_argument("--no-download-sd-model", action='store_true', help="don't download SD1.5 model even if no model is found in --ckpt-dir", default=False)
 
 
+# 加载额外的组件到parser
 script_loading.preload_extensions(extensions.extensions_dir, parser)
 script_loading.preload_extensions(extensions.extensions_builtin_dir, parser)
 
@@ -275,6 +278,7 @@ class OptionInfo:
     def __init__(self, default=None, label="", component=None, component_args=None, onchange=None, section=None, refresh=None):
         self.default = default
         self.label = label
+        # gradio的组件
         self.component = component
         self.component_args = component_args
         self.onchange = onchange
@@ -306,6 +310,7 @@ def list_samplers():
 
 hide_dirs = {"visible": not cmd_opts.hide_ui_dir_config}
 
+# 对应Settings标签
 options_templates = {}
 
 options_templates.update(options_section(('saving-images', "Saving images/grids"), {
@@ -501,19 +506,21 @@ options_templates.update(options_section((None, "Hidden options"), {
 options_templates.update()
 
 
+# 生成配置项
 class Options:
     data = None
     data_labels = options_templates
     typemap = {int: float}
 
     def __init__(self):
+        # 从options_templates读取数据
         self.data = {k: v.default for k, v in self.data_labels.items()}
 
     def __setattr__(self, key, value):
         if self.data is not None:
             if key in self.data or key in self.data_labels:
                 assert not cmd_opts.freeze_settings, "changing settings is disabled"
-
+                # 调用本身的配置项, data_labels是一个字典，有字典的方法
                 info = opts.data_labels.get(key, None)
                 comp_args = info.component_args if info else None
                 if isinstance(comp_args, dict) and comp_args.get('visible', True) is False:
@@ -588,6 +595,7 @@ class Options:
         if bad_settings > 0:
             print(f"The program is likely to not work with bad settings.\nSettings file: {filename}\nEither fix the file, or delete it and restart.", file=sys.stderr)
 
+    # 改变事件
     def onchange(self, key, func, call=True):
         item = self.data_labels.get(key)
         item.onchange = func

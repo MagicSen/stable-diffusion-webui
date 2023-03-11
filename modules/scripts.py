@@ -200,6 +200,7 @@ def list_files_with_name(filename):
     return res
 
 
+# 注册模块脚本
 def load_scripts():
     global current_basedir
     scripts_data.clear()
@@ -237,7 +238,7 @@ def load_scripts():
             sys.path = syspath
             current_basedir = paths.script_path
 
-
+# 封装器
 def wrap_call(func, filename, funcname, *args, default=None, **kwargs):
     try:
         res = func(*args, **kwargs)
@@ -256,14 +257,14 @@ class ScriptRunner:
         self.alwayson_scripts = []
         self.titles = []
         self.infotext_fields = []
-
+    # 初始化脚本，入口
     def initialize_scripts(self, is_img2img):
         from modules import scripts_auto_postprocessing
 
         self.scripts.clear()
         self.alwayson_scripts.clear()
         self.selectable_scripts.clear()
-
+        # 猜测是自动加载预处理脚本
         auto_processing_scripts = scripts_auto_postprocessing.create_auto_preprocessing_script_data()
 
         for script_class, path, basedir, script_module in auto_processing_scripts + scripts_data:
@@ -283,6 +284,7 @@ class ScriptRunner:
                 self.scripts.append(script)
                 self.selectable_scripts.append(script)
 
+    # 构建前端页面
     def setup_ui(self):
         self.titles = [wrap_call(script.title, script.filename, "title") or f"{script.filename} [error]" for script in self.selectable_scripts]
 
@@ -292,7 +294,7 @@ class ScriptRunner:
         def create_script_ui(script, inputs, inputs_alwayson):
             script.args_from = len(inputs)
             script.args_to = len(inputs)
-
+            # 将ui函数于调用的参数联合起来
             controls = wrap_call(script.ui, script.filename, "ui", script.is_img2img)
 
             if controls is None:
@@ -313,7 +315,7 @@ class ScriptRunner:
                 create_script_ui(script, inputs, inputs_alwayson)
 
             script.group = group
-
+        # 脚本下拉框
         dropdown = gr.Dropdown(label="Script", elem_id="script_list", choices=["None"] + self.titles, value="None", type="index")
         inputs[0] = dropdown
 
@@ -361,6 +363,7 @@ class ScriptRunner:
 
         return inputs
 
+    # 给定参数，依次跑相关脚本
     def run(self, p, *args):
         script_index = args[0]
 

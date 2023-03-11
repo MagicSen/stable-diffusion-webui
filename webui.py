@@ -42,6 +42,7 @@ import modules.progress
 
 import modules.ui
 from modules import modelloader
+# 命令行控制参数
 from modules.shared import cmd_opts
 import modules.hypernetworks.hypernetwork
 
@@ -181,7 +182,7 @@ def wait_on_server(demo=None):
 
 def api_only():
     initialize()
-
+    # 使用FastAPI作为调度器
     app = FastAPI()
     setup_cors(app)
     app.add_middleware(GZipMiddleware, minimum_size=1000)
@@ -214,11 +215,12 @@ def webui():
             with open(cmd_opts.gradio_auth_path, 'r', encoding="utf8") as file:
                 for line in file.readlines():
                     gradio_auth_creds += [x.strip() for x in line.split(',')]
-
+        # 配置前端启动项
         app, local_url, share_url = shared.demo.launch(
             share=cmd_opts.share,
             server_name=server_name,
             server_port=cmd_opts.port,
+            # 鉴权控制
             ssl_keyfile=cmd_opts.tls_keyfile,
             ssl_certfile=cmd_opts.tls_certfile,
             debug=cmd_opts.gradio_debug,

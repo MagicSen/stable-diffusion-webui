@@ -176,6 +176,7 @@ class Api:
         return script, script_idx
 
     def text2imgapi(self, txt2imgreq: StableDiffusionTxt2ImgProcessingAPI):
+        # 获取脚本
         script, script_idx = self.get_script(txt2imgreq.script_name, scripts.scripts_txt2img)
 
         populate = txt2imgreq.copy(update={ # Override __init__ params
@@ -189,7 +190,7 @@ class Api:
 
         args = vars(populate)
         args.pop('script_name', None)
-
+        # 处理文本生成图像，占据锁
         with self.queue_lock:
             p = StableDiffusionProcessingTxt2Img(sd_model=shared.sd_model, **args)
 

@@ -280,12 +280,13 @@ def update_token_counter(text, steps):
 
 def create_toprow(is_img2img):
     id_part = "img2img" if is_img2img else "txt2img"
-
+    # 设置布局
     with gr.Row(elem_id=f"{id_part}_toprow", variant="compact"):
         with gr.Column(elem_id=f"{id_part}_prompt_container", scale=6):
             with gr.Row():
                 with gr.Column(scale=80):
                     with gr.Row():
+                        # 构建GR的文本框
                         prompt = gr.Textbox(label="Prompt", elem_id=f"{id_part}_prompt", show_label=False, lines=3, placeholder="Prompt (press Ctrl+Enter or Alt+Enter to generate)")
 
             with gr.Row():
@@ -445,19 +446,25 @@ def create_override_settings_dropdown(tabname, row):
 
     return dropdown
 
-
+# 创建前端页面
 def create_ui():
+    # 图生成图页面
     import modules.img2img
+    # 图生成文字页面
     import modules.txt2img
 
     reload_javascript()
 
     parameters_copypaste.reset()
 
+    # 默认跳转到文字生成图脚本
     modules.scripts.scripts_current = modules.scripts.scripts_txt2img
+    # 运行脚本集合初始化
     modules.scripts.scripts_txt2img.initialize_scripts(is_img2img=False)
 
+    # 创建文字生成图像界面
     with gr.Blocks(analytics_enabled=False) as txt2img_interface:
+        # 创建前两行
         txt2img_prompt, txt2img_prompt_styles, txt2img_negative_prompt, submit, _, _, txt2img_prompt_style_apply, txt2img_save_style, txt2img_paste, extra_networks_button, token_counter, token_button, negative_token_counter, negative_token_button = create_toprow(is_img2img=False)
 
         dummy_component = gr.Label(visible=False)
@@ -548,6 +555,7 @@ def create_ui():
             txt2img_args = dict(
                 fn=wrap_gradio_gpu_call(modules.txt2img.txt2img, extra_outputs=[None, '', '']),
                 _js="submit",
+                # 此处作为输入 并且 叠加 用户自定义输入
                 inputs=[
                     dummy_component,
                     txt2img_prompt,
@@ -582,7 +590,7 @@ def create_ui():
                 ],
                 show_progress=False,
             )
-
+            # 把字典作为参数传入
             txt2img_prompt.submit(**txt2img_args)
             submit.click(**txt2img_args)
 
@@ -1743,7 +1751,7 @@ def create_ui():
 
     return demo
 
-
+# 重新加载html头标签的javascript脚本
 def reload_javascript():
     head = f'<script type="text/javascript" src="file={os.path.abspath("script.js")}?{os.path.getmtime("script.js")}"></script>\n'
 

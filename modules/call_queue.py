@@ -44,7 +44,7 @@ def wrap_gradio_gpu_call(func, extra_outputs=None):
 
     return wrap_gradio_call(f, extra_outputs=extra_outputs, add_stats=True)
 
-
+# 封装gradio前端插件的调用逻辑
 def wrap_gradio_call(func, extra_outputs=None, add_stats=False):
     def f(*args, extra_outputs_array=extra_outputs, **kwargs):
         run_memmon = shared.opts.memmon_poll_rate > 0 and not shared.mem_mon.disabled and add_stats
@@ -53,6 +53,7 @@ def wrap_gradio_call(func, extra_outputs=None, add_stats=False):
         t = time.perf_counter()
 
         try:
+            # 此处是执行单元处
             res = list(func(*args, **kwargs))
         except Exception as e:
             # When printing out our debug argument list, do not print out more than a MB of text
