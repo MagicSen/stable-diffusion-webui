@@ -1,8 +1,9 @@
 from modules import scripts, scripts_postprocessing, shared
 
-
+# 继承自Script类
 class ScriptPostprocessingForMainUI(scripts.Script):
     def __init__(self, script_postproc):
+        # 变量: 注释的类型 = 值， 等效于 变量 = 值
         self.script: scripts_postprocessing.ScriptPostprocessing = script_postproc
         self.postprocessing_controls = None
 
@@ -21,14 +22,17 @@ class ScriptPostprocessingForMainUI(scripts.Script):
 
         pp = scripts_postprocessing.PostprocessedImage(script_pp.image)
         pp.info = {}
+        # 执行脚本，接受图像以及后处理参数
         self.script.process(pp, **args_dict)
+        # 收集脚本处理结果
         p.extra_generation_params.update(pp.info)
+        # 更新图像
         script_pp.image = pp.image
 
 
 def create_auto_preprocessing_script_data():
     from modules import scripts
-
+    # 加载生效的后处理脚本
     res = []
 
     for name in shared.opts.postprocessing_enable_in_main_ui:

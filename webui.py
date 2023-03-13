@@ -85,6 +85,7 @@ Use --skip-version-check commandline argument to disable this check.
 
 
 def initialize():
+    # 初始启动校验
     check_versions()
 
     extensions.list_extensions()
@@ -96,11 +97,13 @@ def initialize():
         return
 
     modelloader.cleanup_models()
+    # 建立sd模型
     modules.sd_models.setup_model()
     codeformer.setup_model(cmd_opts.codeformer_models_path)
     gfpgan.setup_model(cmd_opts.gfpgan_models_path)
 
     modelloader.list_builtin_upscalers()
+    # 加载脚本
     modules.scripts.load_scripts()
     modelloader.load_upscalers()
 
@@ -200,9 +203,9 @@ def webui():
     while 1:
         if shared.opts.clean_temp_dir_at_start:
             ui_tempdir.cleanup_tmpdr()
-
+        # ui界面前准备工作
         modules.script_callbacks.before_ui_callback()
-
+        # 入口ui界面
         shared.demo = modules.ui.create_ui()
 
         if cmd_opts.gradio_queue:

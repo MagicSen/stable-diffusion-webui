@@ -3,8 +3,9 @@ import gradio as gr
 
 from modules import errors, shared
 
-
+# 后处理类，抽象出图像跟图像内容信息
 class PostprocessedImage:
+    # 初始化带上图像信息
     def __init__(self, image):
         self.image = image
         self.info = {}

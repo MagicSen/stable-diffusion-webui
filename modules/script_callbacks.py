@@ -71,6 +71,7 @@ class ImageGridLoopParams:
 
 
 ScriptCallback = namedtuple("ScriptCallback", ["script", "callback"])
+# 回调函数注册入口
 callback_map = dict(
     callbacks_app_started=[],
     callbacks_model_loaded=[],
@@ -211,6 +212,7 @@ def script_unloaded_callback():
             report_exception(c, 'script_unloaded')
 
 
+# ui界面之前运行脚本
 def before_ui_callback():
     for c in reversed(callback_map['callbacks_before_ui']):
         try:
@@ -352,7 +354,7 @@ def on_script_unloaded(callback):
 
     add_callback(callback_map['callbacks_script_unloaded'], callback)
 
-
+# 注册脚本
 def on_before_ui(callback):
     """register a function to be called before the UI is created."""
 

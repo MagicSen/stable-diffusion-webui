@@ -13,6 +13,7 @@ def unload():
 
 
 def before_ui():
+    # 注册网络
     ui_extra_networks.register_page(ui_extra_networks_lora.ExtraNetworksPageLora())
     extra_networks.register_extra_network(extra_networks_lora.ExtraNetworkLora())
 

@@ -165,9 +165,11 @@ ScriptFile = namedtuple("ScriptFile", ["basedir", "filename", "path"])
 
 scripts_data = []
 postprocessing_scripts_data = []
+# 创建一个与tuple类似的对象，对象拥有可访问的属性
 ScriptClassData = namedtuple("ScriptClassData", ["script_class", "path", "basedir", "module"])
 
 
+# 遍历脚本目录，找到指定下标的文件
 def list_scripts(scriptdirname, extension):
     scripts_list = []
 
@@ -178,7 +180,7 @@ def list_scripts(scriptdirname, extension):
 
     for ext in extensions.active():
         scripts_list += ext.list_files(scriptdirname, extension)
-
+    # 剔除非extension的文件
     scripts_list = [x for x in scripts_list if os.path.splitext(x.path)[1].lower() == extension and os.path.isfile(x.path)]
 
     return scripts_list
@@ -211,6 +213,7 @@ def load_scripts():
 
     syspath = sys.path
 
+    # 注册模块函数，包括脚本类以及后处理类
     def register_scripts_from_module(module):
         for key, script_class in module.__dict__.items():
             if type(script_class) != type:
@@ -220,13 +223,13 @@ def load_scripts():
                 scripts_data.append(ScriptClassData(script_class, scriptfile.path, scriptfile.basedir, module))
             elif issubclass(script_class, scripts_postprocessing.ScriptPostprocessing):
                 postprocessing_scripts_data.append(ScriptClassData(script_class, scriptfile.path, scriptfile.basedir, module))
-
+    # 注册脚本文件
     for scriptfile in sorted(scripts_list):
         try:
             if scriptfile.basedir != paths.script_path:
                 sys.path = [scriptfile.basedir] + sys.path
             current_basedir = scriptfile.basedir
-
+            # 从路径引入模块
             script_module = script_loading.load_module(scriptfile.path)
             register_scripts_from_module(script_module)
 
@@ -270,6 +273,7 @@ class ScriptRunner:
         for script_class, path, basedir, script_module in auto_processing_scripts + scripts_data:
             script = script_class()
             script.filename = path
+            # 切换功能，确认是txt2img 还是 img2img
             script.is_txt2img = not is_img2img
             script.is_img2img = is_img2img
 
@@ -286,6 +290,7 @@ class ScriptRunner:
 
     # 构建前端页面
     def setup_ui(self):
+        # 设置脚本的标题
         self.titles = [wrap_call(script.title, script.filename, "title") or f"{script.filename} [error]" for script in self.selectable_scripts]
 
         inputs = [None]
@@ -309,9 +314,10 @@ class ScriptRunner:
             inputs += controls
             inputs_alwayson += [script.alwayson for _ in controls]
             script.args_to = len(inputs)
-
+        # 针对选定的脚本
         for script in self.alwayson_scripts:
             with gr.Group() as group:
+                # 构建脚本的输出与输出
                 create_script_ui(script, inputs, inputs_alwayson)
 
             script.group = group
